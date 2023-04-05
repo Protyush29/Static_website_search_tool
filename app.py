@@ -11,6 +11,7 @@ app = Flask(__name__)
 index = "blog"
 
 def es_connection():
+	#connection to elastic search
 	es_obj = Elasticsearch(hosts = "http://localhost:9200")
 	
 	if es_obj.ping():
@@ -22,15 +23,17 @@ def es_connection():
 	
 	
 def es_ingestion(data):
+	#elasticsearch data ingestion
 	client = es_connection()
 
 	if client:
-		print("Successfully ingested to ES")
 		ido = 1
 		for obj in data:
 			resp = client.index(index=index, id=ido, document=obj)
 			ido += 1
 			print (resp['result'])
+			
+		print("Successfully ingested to ES")
 		return True
 	else:
 		print("Ingestion to ES unsuccessful")
@@ -54,7 +57,7 @@ def url_get():
     # Make the API request and retrieve the JSON response
     response = requests.get(url)
     response_json = response.json()
-    
+    #submit data to elastic search for ingestion.
     status = es_ingestion(response_json)
     
     if status:
@@ -74,17 +77,18 @@ def query_results():
     	    return ('', 204)
 		
     	client.indices.refresh(index=index)
-    	
+	
+    	#Making search query to elastic search 
     	resp = client.search(index=index, query={"match_phrase": {"summary":query}}, highlight={"fields": {"*": {}}})
     	matched_results = resp['hits']['total']['value']
     	results = []
-    	
+	
+    	#arranging results
     	print("Got %d Hits:" % resp['hits']['total']['value'])
     	for hit in resp['hits']['hits']:
     		title = Markup(str(hit["_source"]["title"]).lower().replace(query, "<mark>"+query+"</mark>"))
     		tags = Markup(str(hit["_source"]["tags"]).lower().replace(query, "<mark>"+query+"</mark>"))
     		summary = Markup(str(hit["_source"]["summary"]).lower().replace(query, "<mark>"+query+"</mark>"))
-    		print(summary)
     		
     		results.append([title,hit["_source"]["href"],tags,summary])
     		
