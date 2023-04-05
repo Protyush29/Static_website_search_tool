@@ -1,0 +1,16 @@
+ <!DOCTYPE html>
+<html>
+<head>
+<title>Download ontologies</title>
+</head>
+<body>
+
+<h1>Testing reading data from url</h1>
+<form method="post" action="{{ url_for('url_get') }}">
+  <label for="URL">URL:</label><br>
+  <input type="text" id="URL" name="URL" value="https://identeco.de/en/index.json"><br>
+  <input type="submit" value="Get in console">
+</form> 
+
+</body>
+</html> 
